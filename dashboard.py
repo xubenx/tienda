@@ -15,28 +15,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown("""
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-/* Espaciado entre bloques de Streamlit */
-[data-testid="stVerticalBlock"] > div { padding-bottom: 0.75rem !important; }
-[data-testid="column"] + [data-testid="column"] { margin-top: 0 !important; }
-section[data-testid="stSidebar"] { padding: 1rem !important; }
-
-h2, h3 { color: var(--text-color) !important; margin-top: 1.25rem !important; margin-bottom: 0.75rem !important; }
-hr { border-color: var(--secondary-background-color) !important; margin: 1.5rem 0 !important; }
-
-iframe { display: block !important; margin-bottom: 1rem !important; }
-
-@media (max-width: 768px) {
-    section[data-testid="stSidebar"] { display: none !important; }
-    .block-container { padding: 1rem 0.5rem !important; max-width: 100% !important; }
-    h1 { font-size: 1.4rem !important; }
-    h2 { font-size: 1.1rem !important; }
-    h3 { font-size: 1rem !important; }
-}
-</style>
-""", unsafe_allow_html=True)
+# CSS en bloques pequeños para evitar que Streamlit lo muestre como texto
+st.markdown(
+    '<style>[data-testid="stVerticalBlock"]>div{padding-bottom:.75rem!important}h2,h3{margin-top:1.25rem!important;margin-bottom:.6rem!important}hr{margin:1.5rem 0!important}iframe{display:block!important;margin-bottom:1rem!important}</style>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<style>@media(max-width:768px){section[data-testid="stSidebar"]{display:none!important}.block-container{padding:1rem .5rem!important;max-width:100%!important}h1{font-size:1.4rem!important}h2{font-size:1.1rem!important}h3{font-size:1rem!important}}</style>',
+    unsafe_allow_html=True,
+)
 
 st.title("📊 Dashboard de Ventas — Aluminios")
 

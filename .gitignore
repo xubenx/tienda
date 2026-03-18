@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.FDB
+*.fdb
+MI_BASE.sqlite-shm
+MI_BASE.sqlite-wal
+iniciar_dashboard.bat
+migrar_fdb_a_sqlite.py
+vercel.json
+estructura_db.sql

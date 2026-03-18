@@ -26,10 +26,8 @@ section[data-testid="stSidebar"] { padding: 1rem !important; }
 h2, h3 { color: var(--text-color) !important; margin-top: 1.25rem !important; margin-bottom: 0.75rem !important; }
 hr { border-color: var(--secondary-background-color) !important; margin: 1.5rem 0 !important; }
 
-/* Evitar solapamiento en iframes de components */
 iframe { display: block !important; margin-bottom: 1rem !important; }
 
-/* Ocultar sidebar en móvil */
 @media (max-width: 768px) {
     section[data-testid="stSidebar"] { display: none !important; }
     .block-container { padding: 1rem 0.5rem !important; max-width: 100% !important; }

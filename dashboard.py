@@ -16,14 +16,23 @@ st.set_page_config(
 )
 
 st.markdown("""
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-h2, h3 { color: var(--text-color) !important; margin-top: 1.2rem !important; margin-bottom: 0.6rem !important; }
+/* Espaciado entre bloques de Streamlit */
+[data-testid="stVerticalBlock"] > div { padding-bottom: 0.75rem !important; }
+[data-testid="column"] + [data-testid="column"] { margin-top: 0 !important; }
+section[data-testid="stSidebar"] { padding: 1rem !important; }
+
+h2, h3 { color: var(--text-color) !important; margin-top: 1.25rem !important; margin-bottom: 0.75rem !important; }
 hr { border-color: var(--secondary-background-color) !important; margin: 1.5rem 0 !important; }
+
+/* Evitar solapamiento en iframes de components */
+iframe { display: block !important; margin-bottom: 1rem !important; }
 
 /* Ocultar sidebar en móvil */
 @media (max-width: 768px) {
     section[data-testid="stSidebar"] { display: none !important; }
-    .block-container { padding: 1rem 0.5rem !important; }
+    .block-container { padding: 1rem 0.5rem !important; max-width: 100% !important; }
     h1 { font-size: 1.4rem !important; }
     h2 { font-size: 1.1rem !important; }
     h3 { font-size: 1rem !important; }
@@ -166,22 +175,19 @@ def fmt_compact_n(v: float) -> str:
 
 def kpi_card(icon: str, label: str, compact: str, full: str, color: str = "#4f8ef7") -> str:
     return f"""
-    <div class="kpi-card" style="--accent:{color}">
-      <span class="kpi-icon">{icon}</span>
-      <span class="kpi-label">{label}</span>
-      <span class="kpi-value">{compact}</span>
-      <span class="kpi-sub">{full}</span>
+    <div class="col-6 col-sm-4 col-lg-2">
+      <div class="kpi-card" style="--accent:{color}">
+        <span class="kpi-icon">{icon}</span>
+        <span class="kpi-label">{label}</span>
+        <span class="kpi-value">{compact}</span>
+        <span class="kpi-sub">{full}</span>
+      </div>
     </div>"""
 
-_CARD_CSS = """
+_CARD_HTML = """
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-body { margin:0; padding:0; background:transparent; overflow:visible; min-height:100%; }
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 16px;
-    padding: 4px 0;
-}
+body { margin:0; padding:0; background:transparent; }
 .kpi-card {
     background: #1e1e2e;
     border-radius: 10px;
@@ -190,8 +196,8 @@ body { margin:0; padding:0; background:transparent; overflow:visible; min-height
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-width: 0;
-    min-height: 90px;
+    min-height: 95px;
+    height: 100%;
 }
 .kpi-icon  { font-size: 1.2rem; line-height: 1; }
 .kpi-label { font-size: 0.68rem; color: #9aa0b8; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -200,8 +206,16 @@ body { margin:0; padding:0; background:transparent; overflow:visible; min-height
 </style>
 """
 
-def render_kpi_grid(grid_html: str, height: int = 200) -> None:
-    components.html(_CARD_CSS + grid_html, height=height)
+def render_kpi_grid(grid_html: str, height: int = 220) -> None:
+    html = f"""
+    {_CARD_HTML}
+    <div class="container-fluid p-0">
+      <div class="row g-3">
+        {grid_html}
+      </div>
+    </div>
+    """
+    components.html(html, height=height)
 
 PLOTLY_MOBILE = dict(
     margin=dict(l=10, r=10, t=40, b=30),
@@ -222,16 +236,14 @@ prom_ticket  = tot_ventas / n_tickets if n_tickets else 0
 tot_articulos= df_l_act["CANTIDAD"].sum()
 margen_gral  = (tot_ganancia / tot_ventas * 100) if tot_ventas else 0
 
-cards_html = f"""
-<div class="kpi-grid">
-  {kpi_card("💰","Total vendido",    fmt_compact(tot_ventas),   f"${tot_ventas:,.2f}",   "#4f8ef7")}
-  {kpi_card("📈","Ganancia bruta",   fmt_compact(tot_ganancia), f"${tot_ganancia:,.2f}", "#22c55e")}
-  {kpi_card("🎯","Margen",           f"{margen_gral:.1f}%",     f"Ganancia / Ventas",    "#a78bfa")}
-  {kpi_card("🧾","Tickets",          fmt_compact_n(n_tickets),  f"{n_tickets:,} ventas", "#38bdf8")}
-  {kpi_card("📦","Artículos",        fmt_compact_n(tot_articulos),f"{tot_articulos:,.0f} uds","#fb923c")}
-  {kpi_card("💳","Ticket prom.",     fmt_compact(prom_ticket),  f"${prom_ticket:,.2f}",  "#f472b6")}
-</div>
-"""
+cards_html = "".join([
+    kpi_card("💰","Total vendido",    fmt_compact(tot_ventas),   f"${tot_ventas:,.2f}",   "#4f8ef7"),
+    kpi_card("📈","Ganancia bruta",   fmt_compact(tot_ganancia), f"${tot_ganancia:,.2f}", "#22c55e"),
+    kpi_card("🎯","Margen",           f"{margen_gral:.1f}%",     f"Ganancia / Ventas",    "#a78bfa"),
+    kpi_card("🧾","Tickets",          fmt_compact_n(n_tickets),  f"{n_tickets:,} ventas", "#38bdf8"),
+    kpi_card("📦","Artículos",        fmt_compact_n(tot_articulos),f"{tot_articulos:,.0f} uds","#fb923c"),
+    kpi_card("💳","Ticket prom.",     fmt_compact(prom_ticket),  f"${prom_ticket:,.2f}",  "#f472b6"),
+])
 render_kpi_grid(cards_html)
 st.divider()
 
@@ -376,15 +388,13 @@ cant_d = df_depto["CANTIDAD"].sum()
 prod_d = df_depto["PRODUCTO_NOMBRE"].nunique()
 marg_d = (gan_d / tot_d * 100) if tot_d > 0 else 0
 
-depto_cards = f"""
-<div class="kpi-grid">
-  {kpi_card("💰","Ingresos",      fmt_compact(tot_d),       f"${tot_d:,.2f}",      "#4f8ef7")}
-  {kpi_card("📈","Ganancia",      fmt_compact(gan_d),       f"${gan_d:,.2f}",       "#22c55e")}
-  {kpi_card("🎯","Margen",        f"{marg_d:.1f}%",         "Ganancia / Ingresos",  "#a78bfa")}
-  {kpi_card("📦","Unidades",      fmt_compact_n(cant_d),    f"{cant_d:,.0f} uds",   "#fb923c")}
-  {kpi_card("🏷️","Productos",     fmt_compact_n(prod_d),    f"{prod_d} únicos",     "#38bdf8")}
-</div>
-"""
+depto_cards = "".join([
+    kpi_card("💰","Ingresos",      fmt_compact(tot_d),       f"${tot_d:,.2f}",      "#4f8ef7"),
+    kpi_card("📈","Ganancia",      fmt_compact(gan_d),       f"${gan_d:,.2f}",       "#22c55e"),
+    kpi_card("🎯","Margen",        f"{marg_d:.1f}%",         "Ganancia / Ingresos",  "#a78bfa"),
+    kpi_card("📦","Unidades",      fmt_compact_n(cant_d),    f"{cant_d:,.0f} uds",   "#fb923c"),
+    kpi_card("🏷️","Productos",     fmt_compact_n(prod_d),    f"{prod_d} únicos",     "#38bdf8"),
+])
 render_kpi_grid(depto_cards, height=200)
 
 resumen_depto = (
@@ -585,13 +595,12 @@ else:
     costo_prom_unit = (total_costo_compra / costos_validos["CANTIDAD"].sum()) if costos_validos["CANTIDAD"].sum() > 0 else 0
     pct_ingresos_crit = (criticos["INGRESOS"].sum() / costos_validos["INGRESOS"].sum() * 100) if costos_validos["INGRESOS"].sum() > 0 else 0
 
-    costos_cards = f"""
-<div class="kpi-grid">
-  {kpi_card("🛒","Costo compra", fmt_compact(total_costo_compra), f"${total_costo_compra:,.2f}", "#f59e0b")}
-  {kpi_card("📦","Costo prom/u", fmt_compact(costo_prom_unit), f"${costo_prom_unit:,.2f}", "#38bdf8")}
-  {kpi_card("⚠️","Críticos", fmt_compact_n(len(criticos)), "Alta venta + bajo margen", "#ef4444")}
-  {kpi_card("🎯","% en críticos", f"{pct_ingresos_crit:.1f}%", "Participación ingresos", "#a78bfa")}
-</div>"""
+    costos_cards = "".join([
+        kpi_card("🛒","Costo compra", fmt_compact(total_costo_compra), f"${total_costo_compra:,.2f}", "#f59e0b"),
+        kpi_card("📦","Costo prom/u", fmt_compact(costo_prom_unit), f"${costo_prom_unit:,.2f}", "#38bdf8"),
+        kpi_card("⚠️","Críticos", fmt_compact_n(len(criticos)), "Alta venta + bajo margen", "#ef4444"),
+        kpi_card("🎯","% en críticos", f"{pct_ingresos_crit:.1f}%", "Participación ingresos", "#a78bfa"),
+    ])
     render_kpi_grid(costos_cards, height=200)
 
     costo_dep = (
@@ -671,13 +680,12 @@ with st.expander("⚠️ Productos con costo registrado en $0", expanded=False):
         total_cant_cero  = df_cero["CANTIDAD"].sum()
         pct_ventas       = (total_rev_cero / tot_ventas * 100) if tot_ventas > 0 else 0
 
-        cero_cards = f"""
-<div class="kpi-grid">
-  {kpi_card("⚠️","Catálogo $0", fmt_compact_n(n_prods_catalogo), f"{n_prods_catalogo} prods", "#ef4444")}
-  {kpi_card("📊","Vendidos", fmt_compact_n(n_prods_vendidos), f"de {n_prods_catalogo}", "#f97316")}
-  {kpi_card("💰","Ingresos", fmt_compact(total_rev_cero), f"${total_rev_cero:,.2f}", "#22c55e")}
-  {kpi_card("📈","% ventas", f"{pct_ventas:.1f}%", "Del período", "#a78bfa")}
-</div>"""
+        cero_cards = "".join([
+            kpi_card("⚠️","Catálogo $0", fmt_compact_n(n_prods_catalogo), f"{n_prods_catalogo} prods", "#ef4444"),
+            kpi_card("📊","Vendidos", fmt_compact_n(n_prods_vendidos), f"de {n_prods_catalogo}", "#f97316"),
+            kpi_card("💰","Ingresos", fmt_compact(total_rev_cero), f"${total_rev_cero:,.2f}", "#22c55e"),
+            kpi_card("📈","% ventas", f"{pct_ventas:.1f}%", "Del período", "#a78bfa"),
+        ])
         render_kpi_grid(cero_cards, height=200)
 
         resumen_cero = (

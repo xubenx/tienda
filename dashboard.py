@@ -17,8 +17,8 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-h2, h3 { color: var(--text-color) !important; }
-hr { border-color: var(--secondary-background-color) !important; margin: 1rem 0 !important; }
+h2, h3 { color: var(--text-color) !important; margin-top: 1.2rem !important; margin-bottom: 0.6rem !important; }
+hr { border-color: var(--secondary-background-color) !important; margin: 1.5rem 0 !important; }
 
 /* Ocultar sidebar en móvil */
 @media (max-width: 768px) {
@@ -175,21 +175,23 @@ def kpi_card(icon: str, label: str, compact: str, full: str, color: str = "#4f8e
 
 _CARD_CSS = """
 <style>
-body { margin:0; padding:0; background:transparent; overflow:hidden; }
+body { margin:0; padding:0; background:transparent; overflow:visible; min-height:100%; }
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    padding: 4px 0;
 }
 .kpi-card {
     background: #1e1e2e;
     border-radius: 10px;
-    padding: 14px 16px 12px;
+    padding: 16px 18px 14px;
     border-left: 4px solid var(--accent);
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     min-width: 0;
+    min-height: 90px;
 }
 .kpi-icon  { font-size: 1.2rem; line-height: 1; }
 .kpi-label { font-size: 0.68rem; color: #9aa0b8; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -198,7 +200,7 @@ body { margin:0; padding:0; background:transparent; overflow:hidden; }
 </style>
 """
 
-def render_kpi_grid(grid_html: str, height: int = 130) -> None:
+def render_kpi_grid(grid_html: str, height: int = 200) -> None:
     components.html(_CARD_CSS + grid_html, height=height)
 
 PLOTLY_MOBILE = dict(
@@ -383,7 +385,7 @@ depto_cards = f"""
   {kpi_card("🏷️","Productos",     fmt_compact_n(prod_d),    f"{prod_d} únicos",     "#38bdf8")}
 </div>
 """
-render_kpi_grid(depto_cards, height=130)
+render_kpi_grid(depto_cards, height=200)
 
 resumen_depto = (
     df_depto.groupby(["PRODUCTO_CODIGO", "PRODUCTO_NOMBRE"])
@@ -590,7 +592,7 @@ else:
   {kpi_card("⚠️","Críticos", fmt_compact_n(len(criticos)), "Alta venta + bajo margen", "#ef4444")}
   {kpi_card("🎯","% en críticos", f"{pct_ingresos_crit:.1f}%", "Participación ingresos", "#a78bfa")}
 </div>"""
-    render_kpi_grid(costos_cards, height=130)
+    render_kpi_grid(costos_cards, height=200)
 
     costo_dep = (
         costos_validos.groupby("DEPARTAMENTO")
@@ -676,7 +678,7 @@ with st.expander("⚠️ Productos con costo registrado en $0", expanded=False):
   {kpi_card("💰","Ingresos", fmt_compact(total_rev_cero), f"${total_rev_cero:,.2f}", "#22c55e")}
   {kpi_card("📈","% ventas", f"{pct_ventas:.1f}%", "Del período", "#a78bfa")}
 </div>"""
-        render_kpi_grid(cero_cards, height=130)
+        render_kpi_grid(cero_cards, height=200)
 
         resumen_cero = (
             df_cero.groupby(["PRODUCTO_CODIGO","PRODUCTO_NOMBRE"])
